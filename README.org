@@ -12,6 +12,25 @@ You need to create an [[https://developer.todoist.com/sync/v8/][API token]] for 
 
 Then call the program, without any arguments. It will write the org-file to stdout, so you can redirect it.
 
+To call this from emacs, one ugly way would be:
+
+#+begin_src emacs-lisp
+(global-set-key
+ (kbd "s-<f5>")
+ (lambda
+   ()
+   (interactive)
+   (progn
+     (message "Updating via todoist...")
+     (call-process-shell-command "/path/to/todoist/org-todoist > /tmp/todoist.org")
+     (message "Done!")
+     )
+   )
+ )
+#+end_src
+
+For this to work, you need to adapt the path to todoist and add =/tmp/todoist.org= to =org-agenda-files=, of course.
+
 ** License
 
 Public domain. Do anything with it.
