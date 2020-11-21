@@ -1,5 +1,7 @@
 * org-todoist
 
+[[https://travis-ci.com/pmiddend/org-todoist.svg?branch=master][https://travis-ci.com/pmiddend/org-todoist.svg?branch=master]]
+
 Converts Todoist to an org-mode file. Projects will be top-level items, then items.
 
 ** Usage
