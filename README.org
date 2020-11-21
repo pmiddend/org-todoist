@@ -1,0 +1,15 @@
+* org-todoist
+
+Converts Todoist to an org-mode file. Projects will be top-level items, then items.
+
+** Usage
+
+It’s a Python program using setuptools, to building/installation/… should be done through =setup.py=. Alternatively, just use [[https://nixos.org/][Nix]]: =git clone … && nix-build=, then =result/bin/org-todoist=.
+
+You need to create an [[https://developer.todoist.com/sync/v8/][API token]] for this to work and that needs to be either stored inside an environment variable =TODOIST_TOKEN= or inside =$XDG_CONFIG_HOME/org-todoist/=.
+
+Then call the program, without any arguments. It will write the org-file to stdout, so you can redirect it.
+
+** License
+
+Public domain. Do anything with it.

@@ -5,8 +5,32 @@ import os
 import sys
 import re
 import todoist  # type: ignore
+from xdg import XDG_CONFIG_HOME  # type: ignore
 
 MARKDOWN_LINK_REGEX: Final = re.compile(r"\[([^]]+)\]\(([^)]+)\)")
+
+
+def get_todoist_token() -> Optional[str]:
+    config_file = XDG_CONFIG_HOME / "org-todoist" / "token.txt"
+
+    if config_file.exists():
+        with config_file.open() as f:
+            token_unstripped: str = f.readline()
+            return token_unstripped.strip()
+
+    if "TODOIST_TOKEN" not in os.environ:
+        sys.stderr.write(
+            "We need a valid todoist token inside the TODOIST_TOKEN environment variable\n"
+        )
+        sys.stderr.write(
+            "See the manual: https://developer.todoist.com/sync/v8/?shell#authorization\n\n"
+        )
+        sys.stderr.write(
+            "Alternatively, provide a configuration file at " + config_file
+        )
+        return None
+
+    return os.environ["TODOIST_TOKEN"]
 
 
 @dataclass(frozen=True)
@@ -147,20 +171,10 @@ def serialize_org(t: OrgDocument) -> None:
 
 
 def main_inner() -> int:
-    if "TODOIST_TOKEN" not in os.environ:
-        sys.stderr.write(
-            "We need a valid todoist token inside the TODOIST_TOKEN environment variable\n"
-        )
-        sys.stderr.write(
-            "See the manual: https://developer.todoist.com/sync/v8/?shell#authorization\n"
-        )
-        return 1
-
-    api = todoist.TodoistAPI(os.environ["TODOIST_TOKEN"])
+    api = todoist.TodoistAPI(get_todoist_token())
     api.sync()
 
     serialize_org(convert_to_org(build_todoist_tree(api.state)))
-    # serialize_todoist_tree(build_todoist_tree(api.state))
 
     return 0
 

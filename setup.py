@@ -7,6 +7,6 @@ setup(
     author="Philipp Middendorf",
     author_email="pmidden@mailbox.org",
     packages=["orgtodoist"],
-    install_requires=["todoist-python"],
+    install_requires=["todoist-python", "xdg"],
     entry_points={"console_scripts": ["org-todoist = orgtodoist:main"]},
 )

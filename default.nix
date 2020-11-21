@@ -11,5 +11,5 @@ in pythonPkgs.buildPythonPackage rec {
   doCheck = false;
 
   buildInputs = with pythonPkgs; [ black pylint mypy ];
-  propagatedBuildInputs = [ pythonPkgs.todoist ];
+  propagatedBuildInputs = [ pythonPkgs.todoist pythonPkgs.xdg ];
 }
