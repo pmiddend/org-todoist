@@ -8,6 +8,8 @@ in pythonPkgs.buildPythonPackage rec {
 
   src = ./.;
 
+  doCheck = false;
+
   buildInputs = with pythonPkgs; [ black pylint mypy ];
   propagatedBuildInputs = [ pythonPkgs.todoist ];
 }
