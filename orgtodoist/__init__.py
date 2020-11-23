@@ -58,6 +58,8 @@ class TodoistItem(TypedDict):
     content: str
     due: Optional[TodoistDue]
     parent_id: Optional[int]
+    in_history: int
+    is_deleted: int
 
 
 class TodoistProject(TypedDict):
@@ -107,11 +109,18 @@ def build_todoist_tree(state: TodoistState) -> TodoistTree:
             [
                 build_todoist_item_tree(state["items"], item)
                 for item in state["items"]
-                if item["project_id"] == project["id"] and item["parent_id"] is None
+                if item["project_id"] == project["id"]
+                and item["parent_id"] is None
+                and item["is_deleted"] != 1
+                and item["in_history"] != 1
             ],
         )
 
-    return [build_todoist_project_tree(state, p) for p in state["projects"]]
+    return [
+        build_todoist_project_tree(state, p)
+        for p in state["projects"]
+        if p["name"] != "Inbox"
+    ]
 
 
 def serialize_todoist_tree(t: TodoistTree) -> None:
