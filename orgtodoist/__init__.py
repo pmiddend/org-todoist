@@ -60,12 +60,15 @@ class TodoistItem(TypedDict):
     parent_id: Optional[int]
     in_history: int
     is_deleted: int
+    checked: int
 
 
 class TodoistProject(TypedDict):
     id: int
     parent_id: Optional[int]
     name: str
+    is_deleted: int
+    is_archived: int
 
 
 class TodoistState(TypedDict):
@@ -88,22 +91,35 @@ class TodoistTreeProject:
 TodoistTree = List[TodoistTreeProject]
 
 
+def item_is_active(item: TodoistItem) -> bool:
+    return item["is_deleted"] != 1 and item["in_history"] != 1 and item["checked"] != 1
+
+
+def project_is_active(project: TodoistProject) -> bool:
+    return project["is_deleted"] != 1 and project["is_archived"] != 1
+
+
 def build_todoist_tree(state: TodoistState) -> TodoistTree:
     def build_todoist_item_tree(
         items: List[TodoistItem], parent_item: TodoistItem
     ) -> TodoistTreeItem:
+        # for item in items:
+        #     print(item)
         return TodoistTreeItem(
             parent_item,
             [
                 build_todoist_item_tree(items, sub_item)
                 for sub_item in items
                 if sub_item["parent_id"] == parent_item["id"]
+                and item_is_active(sub_item)
             ],
         )
 
     def build_todoist_project_tree(
         state: TodoistState, project: TodoistProject
     ) -> TodoistTreeProject:
+        # for item in state["items"]:
+        #     print(item)
         return TodoistTreeProject(
             project,
             [
@@ -111,12 +127,15 @@ def build_todoist_tree(state: TodoistState) -> TodoistTree:
                 for item in state["items"]
                 if item["project_id"] == project["id"]
                 and item["parent_id"] is None
-                and item["is_deleted"] != 1
-                and item["in_history"] != 1
+                and item_is_active(item)
             ],
         )
 
-    return [build_todoist_project_tree(state, p) for p in state["projects"]]
+    return [
+        build_todoist_project_tree(state, p)
+        for p in state["projects"]
+        if project_is_active(p)
+    ]
 
 
 def serialize_todoist_tree(t: TodoistTree) -> None:
@@ -177,6 +196,9 @@ def serialize_org(t: OrgDocument) -> None:
 def main_inner() -> int:
     api = todoist.TodoistAPI(get_todoist_token())
     api.sync()
+    # item = api.items.get_by_id(4386215651)
+    # item.complete()
+    # api.commit()
 
     serialize_org(convert_to_org(build_todoist_tree(api.state)))
 
